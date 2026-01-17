@@ -12,6 +12,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class ProductsService {
@@ -27,7 +28,7 @@ export class ProductsService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: User) {
     try {
       const { images = [], ...productDetails } = createProductDto;
       //? al crear un imageproduct no se guarda en la base de datos hasta que se guarde el producto que las contiene y al estar dentro del create del producto se guardan en cascada y el productid se asigna del producto padre
@@ -36,6 +37,7 @@ export class ProductsService {
         images: images.map((image) =>
           this.productImageRepository.create({ url: image }),
         ),
+        user: user,
       });
 
       await this.productRepository.save(product);
@@ -100,7 +102,7 @@ export class ProductsService {
   //   };
   // }
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
     const { images, ...toUpdate } = updateProductDto;
 
     //? Preload crea una nueva entidad con los datos que le pasamos y si encuentra el id lo actualiza, si no lo encuentra devuelve null
@@ -125,6 +127,7 @@ export class ProductsService {
           this.productImageRepository.create({ url: image }),
         );
       }
+      product.user = user;
       await queryRunner.manager.save(product);
 
       await queryRunner.commitTransaction();

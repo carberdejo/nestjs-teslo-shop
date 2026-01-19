@@ -15,3 +15,5 @@
 ```
 
 6. Levantar ` npm run start:dev`
+
+Link de documentacion en Postman: https://documenter.getpostman.com/view/41547790/2sBXVig9e8

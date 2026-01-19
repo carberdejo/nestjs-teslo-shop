@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseFilePipeBuilder,
   Post,
   Res,
   UploadedFile,
@@ -16,7 +15,10 @@ import { fileFilter } from './helpers/fileFilter.helper';
 import { diskStorage } from 'multer';
 import { fileNamer } from './helpers';
 import { ConfigService } from '@nestjs/config';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { FileUploadDto } from './dto/files-upload.dto';
 
+@ApiTags('Files')
 @Controller('files')
 export class FilesController {
   constructor(
@@ -52,6 +54,11 @@ export class FilesController {
       }),
     }),
   )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File upload',
+    type: FileUploadDto,
+  })
   uploadFile(@UploadedFile() file: Express.Multer.File) {
     console.log({ file });
 
@@ -64,28 +71,28 @@ export class FilesController {
     return { secureUrl };
   }
 
-  @Post('upload2')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadFile1(
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /\/(jpg|jpeg|png)$/,
-          // skipMagicNumbersValidation: true,
-        })
-        .build({
-          // errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          fileIsRequired: true,
-        }),
-    )
-    file: Express.Multer.File,
-  ) {
-    console.log({ file });
+  //   @Post('upload2')
+  //   @UseInterceptors(FileInterceptor('file'))
+  //   uploadFile1(
+  //     @UploadedFile(
+  //       new ParseFilePipeBuilder()
+  //         .addFileTypeValidator({
+  //           fileType: /\/(jpg|jpeg|png)$/,
+  //           // skipMagicNumbersValidation: true,
+  //         })
+  //         .build({
+  //           // errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+  //           fileIsRequired: true,
+  //         }),
+  //     )
+  //     file: Express.Multer.File,
+  //   ) {
+  //     console.log({ file });
 
-    if (!file) {
-      throw new BadRequestException('File not provided or invalid file type');
-    }
+  //     if (!file) {
+  //       throw new BadRequestException('File not provided or invalid file type');
+  //     }
 
-    return file.originalname;
-  }
+  //     return file.originalname;
+  //   }
 }
